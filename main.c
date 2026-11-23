@@ -14,12 +14,6 @@ void processInput(GLFWwindow *window)
 }
 
 
-void render(GLFWwindow *window)
-{
-    glClearColor(0.1f, 0.3f, 0.2f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-}
-
 
 int main(void)
 {
@@ -28,14 +22,39 @@ int main(void)
     if (!window) return -1; 
 
     unsigned int standard_program = create_shader_program("standard.frag", "standard.vert");
-    glUseProgram(standard_program);
+
+    // Triangle
+    float triangle[] = {
+        -0.5f, -0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+        0.5f, 0.5f, 0.05f
+    };
+
+    // Create vertex array object for triangle
+    unsigned int triangle_VAO;
+    unsigned int triangle_VBO;
+    glGenBuffers(1, &triangle_VBO);
+    glGenVertexArrays(1, &triangle_VAO);
+    glBindVertexArray(triangle_VAO);
+
+    // Bind VBO and configure
+    glBindBuffer(GL_ARRAY_BUFFER, triangle_VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(triangle), triangle, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), 0);
+    glEnableVertexAttribArray(0);
 
     // Run window
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
 
-        render(window);
+        glClearColor(0.1f, 0.3f, 0.2f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // Draw triangle
+        glUseProgram(standard_program);
+        glBindVertexArray(triangle_VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwPollEvents();
         glfwSwapBuffers(window);
