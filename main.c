@@ -1,65 +1,29 @@
 #include <stdio.h>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include "src/engine.h"
-#include "src/shaders.h"
-
-
-void processInput(GLFWwindow *window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    {
-        glfwSetWindowShouldClose(window, 1);
-    }
-}
-
-
+#include "src/core/engine.h"
+#include "src/core/fobject_makers.h"
 
 int main(void)
 {
-    // Create window
-    GLFWwindow *window = make_window(800, 600, "Test");
-    if (!window) return -1; 
-
-    unsigned int standard_program = create_shader_program("standard.frag", "standard.vert");
+    // Init fiddle
+    Fiddle fiddle;
+    if (!fiddle_init(&fiddle, 800, 600, "Test"))
+        return -1;
 
     // Triangle
-    float triangle[] = {
+    float vertices[] = {
         -0.5f, -0.5f, 0.0f,
         0.5f, -0.5f, 0.0f,
         0.5f, 0.5f, 0.05f
     };
 
-    // Create vertex array object for triangle
-    unsigned int triangle_VAO;
-    unsigned int triangle_VBO;
-    glGenBuffers(1, &triangle_VBO);
-    glGenVertexArrays(1, &triangle_VAO);
-    glBindVertexArray(triangle_VAO);
-
-    // Bind VBO and configure
-    glBindBuffer(GL_ARRAY_BUFFER, triangle_VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(triangle), triangle, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), 0);
-    glEnableVertexAttribArray(0);
-
-    // Run window
-    while (!glfwWindowShouldClose(window))
+    FObject triangle;
+    if (!static_uncoloured_mesh_fobject(&triangle, sizeof(vertices), vertices, "standard.frag", "standard.vert"))
     {
-        processInput(window);
-
-        glClearColor(0.1f, 0.3f, 0.2f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // Draw triangle
-        glUseProgram(standard_program);
-        glBindVertexArray(triangle_VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-
-        glfwPollEvents();
-        glfwSwapBuffers(window);
+        printf("Failed to create triangle fobject!");
+        return -1;
     }
 
-    glfwTerminate();
-    return 0;
+    fiddle_add_object(&fiddle, &triangle);
+
+    return fiddle_run(&fiddle);
 }
