@@ -4,7 +4,7 @@ project(Fiddle C)
 set(CMAKE_C_STANDARD 11)
 set(
     SOURCES
-    src/core/chains.c
+    src/core/components.c
     src/core/engine.c
     src/core/fobject_makers.c
     src/core/graphics/shaders.c

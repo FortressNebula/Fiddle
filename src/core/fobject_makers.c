@@ -20,13 +20,7 @@ static void destroy_uncoloured_mesh_fobject(void* renderer_state)
 int static_uncoloured_mesh_fobject(FObject *object, int sizeof_vertices, float vertices[], char* frag_shader_path, char* vert_shader_path)
 {
     // Create updater
-    PriorityRunnable updater;
-    updater.state = NULL;
-    updater.z_index = 1;
-    updater.next = NULL;
-    updater.run = do_nothing;
-    updater.destroy = do_nothing;
-    object->updater = updater;
+    object->updater = empty_updater();
 
     // Create state
     UniformlessVAORenderableState* state = malloc(sizeof(*state));
@@ -54,11 +48,11 @@ int static_uncoloured_mesh_fobject(FObject *object, int sizeof_vertices, float v
     state->vertices_length = sizeof_vertices / (3 * sizeof(float));
 
     // Create renderer
-    PriorityRunnable renderer;
+    Renderer renderer;
     renderer.state = state;
-    renderer.z_index = 1;
+    renderer.z = 1;
     renderer.next = NULL;
-    renderer.run = draw_uncoloured_mesh_fobject;
+    renderer.render = draw_uncoloured_mesh_fobject;
     renderer.destroy = destroy_uncoloured_mesh_fobject;
     object->renderer = renderer;
 

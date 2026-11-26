@@ -1,12 +1,12 @@
 #pragma once
-#include "chains.h"
+#include "components.h"
 #include "graphics/shaders.h"
 
 // Fiddle object
 // Includes a renderer, updater, and common state
 typedef struct {
-    PriorityRunnable updater;
-    PriorityRunnable renderer;
+    Updater updater;
+    Renderer renderer;
 } FObject;
 
 // Renderable state with only a VAO and a shader program

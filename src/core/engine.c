@@ -39,7 +39,7 @@ static GLFWwindow* make_window(int width, int height, char* name)
 }
 #pragma endregion
 
-void fiddle_update(void* state)
+void fiddle_update(void* state, Renderer *renderer, Updater *chain_head)
 {
     GLFWwindow* window = state;
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -49,11 +49,13 @@ void fiddle_update(void* state)
     return;
 }
 
+
 void fiddle_render(void* state)
 {
     glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 }
+
 
 int fiddle_init(Fiddle *fiddle, int width, int height, char* name)
 {
@@ -68,23 +70,24 @@ int fiddle_init(Fiddle *fiddle, int width, int height, char* name)
         return 0;
     }
 
-    PriorityRunnable updater;
-    updater.z_index = 0;
+    Updater updater;
+    updater.laziness = 0;
     updater.next = NULL;
     updater.state = fiddle->window;
-    updater.run = fiddle_update;
+    updater.update = fiddle_update;
     updater.destroy = do_nothing;
     fiddle->updater = updater;
     fiddle->updater_chain = &fiddle->updater;
 
-    PriorityRunnable renderer;
-    renderer.z_index = 0;
+    Renderer renderer;
+    renderer.z = 0;
     renderer.next = NULL;
     renderer.state = NULL;
-    renderer.run = fiddle_render;
+    renderer.render = fiddle_render;
     renderer.destroy = do_nothing;
     fiddle->renderer = renderer;
     fiddle->renderer_chain = &fiddle->renderer;
+    fiddle->updater.renderer = &fiddle->renderer;
 
     return 1;
 }
@@ -94,10 +97,8 @@ int fiddle_add_object(Fiddle* fiddle, FObject* object)
 {
     // attach object to updater and renderer chains
     // only add if run or destroy methods are non-empty
-    if (object->updater.run != do_nothing || object->updater.destroy != do_nothing)
-        attach_runnable(fiddle->updater_chain, &object->updater);
-    if (object->renderer.run != do_nothing || object->renderer.destroy != do_nothing)
-        attach_runnable(fiddle->renderer_chain, &object->renderer);
+    attach_updater(fiddle->updater_chain, &object->updater);
+    attach_renderer(fiddle->renderer_chain, &object->renderer);
 }
 
 
@@ -106,16 +107,30 @@ int fiddle_run(Fiddle* fiddle)
     // Run window
     while (!glfwWindowShouldClose(fiddle->window))
     {
-        run_priority_runnable_chain(fiddle->updater_chain);
-        run_priority_runnable_chain(fiddle->renderer_chain);
+        // linked list pointers
+        Updater *update_ptr = fiddle->updater_chain;
+        Renderer *renderer_ptr = fiddle->renderer_chain;
+
+        // update everything
+        while (update_ptr != NULL)
+        {
+            update_ptr->update(update_ptr->state, update_ptr->renderer, fiddle->updater_chain);
+            update_ptr = update_ptr->next;
+        }
+
+        // render everything
+        while (renderer_ptr != NULL)
+        {
+            renderer_ptr->render(renderer_ptr->state);
+            renderer_ptr = renderer_ptr->next;
+        }
 
         glfwPollEvents();
         glfwSwapBuffers(fiddle->window);
     }
 
     // Destroy
-    destroy_priority_runnable_chain(fiddle->renderer_chain);
-    destroy_priority_runnable_chain(fiddle->updater_chain);
-    glfwTerminate();
+    destroy_renderers(fiddle->renderer_chain);
+    destroy_updaters(fiddle->updater_chain);
     return 0;
 }
