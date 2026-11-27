@@ -9,6 +9,7 @@ Updater empty_updater(void)
     Updater updater;
     updater.state = NULL;
     updater.laziness = 0;
+    updater.bitmask = 0;
     updater.next = NULL;
     updater.renderer = NULL;
     updater.update = update_nothing;
@@ -57,4 +58,10 @@ void destroy_renderers(Renderer *chain_head)
     }
     
     chain_head->destroy(chain_head->state);
+}
+
+Updater* safe_traverse_updaters(Updater *current, int laziness)
+{
+    if (current->laziness >= laziness) return NULL;
+    return current->next;
 }

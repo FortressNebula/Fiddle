@@ -4,10 +4,10 @@ project(Fiddle C)
 set(CMAKE_C_STANDARD 11)
 set(
     SOURCES
-    src/core/components.c
-    src/core/engine.c
-    src/core/fobject_makers.c
-    src/core/graphics/shaders.c
+    src/components.c
+    src/engine.c
+    src/fobject_makers.c
+    src/graphics/shaders.c
 )
 
 find_package(OpenGL REQUIRED)

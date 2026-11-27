@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "src/core/engine.h"
-#include "src/core/fobject_makers.h"
+#include "src/engine.h"
+#include "src/fobject_makers.h"
 
 int main(void)
 {

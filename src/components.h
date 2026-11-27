@@ -13,13 +13,17 @@ struct Updater {
     // User-defined state for the updater
     // Should be freed in the destroy method
     void *state;
+    // Unsigned integer that can be used as a bitmask
+    // Not passed to update method, but guaranteed to exist in
+    // every updater component. Useful to check against others
+    unsigned int bitmask;
     // Pointer to the renderer component of the FObject
     Renderer *renderer;
 
     // Update the FObject, ran before rendering
     // @param state the state of the updater as defined by the user
     // @param renderer a pointer to the FObject's renderer component
-    // @param chain_head a pointer to traverse the updater linked list. ONLY USE SAFE TRAVERSAL!
+    // @param chain_head a pointer to traverse the updater linked list. Only use safe traversal!
     void (*update)(void *state, Renderer *renderer, Updater *chain_head);
     // Destroy the FObject, ran after renderer destruction
     // @param state the state of the updater as defined by the user
@@ -68,3 +72,7 @@ void attach_renderer(Renderer *chain_head, Renderer *renderer);
 void destroy_updaters(Updater *chain_head);
 // Destroy a renderer linked list chain
 void destroy_renderers(Renderer *chain_head);
+
+// Safely get the next updater in a linked list chain, returning NULL when an updater with the same laziness is met
+// Ensures only stable memory is exposed
+Updater* safe_traverse_updaters(Updater *current, int laziness);
