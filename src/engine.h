@@ -1,7 +1,7 @@
 #pragma once
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "components.h"
+#include "components/components.h"
 #include "fobject.h"
 
 // Instance of Fiddle

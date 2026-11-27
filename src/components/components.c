@@ -1,8 +1,10 @@
 #include "components.h"
 #include <stddef.h>
+#include <stdlib.h>
 
 void update_nothing(void *state, Renderer *renderer, Updater *chain_head) {}
 void do_nothing(void *state) {}
+void free_state(void *state) {free(state);}
 
 Updater empty_updater(void)
 {

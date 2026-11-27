@@ -62,6 +62,8 @@ void do_nothing(void *state);
 // Dummy updater
 // Does and destroys nothing
 Updater empty_updater(void);
+// Generic destructor, frees the state
+void free_state(void *state);
 
 // Attach an updater to a linked list chain
 void attach_updater(Updater *chain_head, Updater *updater);

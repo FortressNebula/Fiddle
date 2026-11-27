@@ -4,9 +4,9 @@ project(Fiddle C)
 set(CMAKE_C_STANDARD 11)
 set(
     SOURCES
-    src/components.c
+    src/components/components.c
+    src/components/renderables.c
     src/engine.c
-    src/fobject_makers.c
     src/graphics/shaders.c
 )
 

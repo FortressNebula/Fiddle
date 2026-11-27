@@ -1,6 +1,5 @@
 #pragma once
-#include "components.h"
-#include "graphics/shaders.h"
+#include "components/components.h"
 
 // Fiddle object
 // Includes a renderer, updater, and common state
